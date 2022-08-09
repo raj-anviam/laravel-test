@@ -52,7 +52,7 @@ class AuthController extends Controller
         
         try {
 
-            if (!Auth::attempt($request->all())) {
+            if (!Auth::attempt($request->only('email', 'password'))) {
                 return $this->errorResponse('Credentials not match', 401);
             }
             
