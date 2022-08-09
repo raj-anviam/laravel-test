@@ -84,44 +84,51 @@ class LoanController extends Controller
 
     public function payment(PaymentRequest $request) {
         
-        $loan = Loan::findOrFail($request->loan_id);
+        try {
 
-        // check pending installments
-        if(!$this->hasPendingInstallments($loan)) {
-            return $this->errorResponse("You have paid back the loan");
-        }
-
-        $installment = $loan->installments()->whereStatus('PENDING')->where('due_date', '>=', Carbon::today())->first();
-
-        if($installment->count()) {
-
-            if($request->amount < $installment->amount)
-                return $this->errorResponse("You need pay atleast $installment->amount USD for this installment");
-    
-            // get next pending installment
-            $pendingInstallments = $loan->installments()->where('id', '>=', $installment->id)->whereStatus('PENDING');
-
-            $totalAmount = $pendingInstallments->sum('amount');
+            $loan = Loan::findOrFail($request->loan_id);
             
-            // check if user is paying more pending amount
-            if($totalAmount - $request->amount < 0)
+            // check pending installments
+            if(!$this->hasPendingInstallments($loan)) {
+                return $this->errorResponse("You have paid back the loan");
+            }
+            
+            $installment = $loan->installments()->whereStatus('PENDING')->where('due_date', '>=', Carbon::today())->first();
+            
+            if($installment->count()) {
+                
+                if($request->amount < $installment->amount)
+                return $this->errorResponse("You need pay atleast $installment->amount USD for this installment");
+                
+                // get next pending installment
+                $pendingInstallments = $loan->installments()->where('id', '>=', $installment->id)->whereStatus('PENDING');
+                
+                $totalAmount = $pendingInstallments->sum('amount');
+                
+                // check if user is paying more pending amount
+                if($totalAmount - $request->amount < 0)
                 return $this->errorResponse("You need pay maximum $totalAmount USD for this installment");
                 
-            $installment->status = 'PAID';
-            $installment->amount_paid = $request->amount;
-            $installment->save();
-
-            // update next installment amount
-            if($pendingInstallments->first())
+                $installment->status = 'PAID';
+                $installment->amount_paid = $request->amount;
+                $installment->save();
+                
+                // update next installment amount
+                if($pendingInstallments->first())
                 $pendingInstallments->first()->decrement('amount', ($request->amount - $installment->amount));
-            else
+                else
                 $loan->status = 'PAID';
                 $loan->save();
-
-            return $this->successResponse([], 200, true, "payment successfull");
+                
+                return $this->successResponse([], 200, true, "payment successfull");
+            }
+            else {
+                return $this->successResponse([], 200, true, "payment successfull, you have paid back the loan");
+            }
         }
-        else {
-            return $this->successResponse([], 200, true, "payment successfull, you have paid back the loan");
+        catch (Exception $e) {
+            DB::rollback();
+            return $this->errorResponse($e->getMessage());
         }
     }
 
