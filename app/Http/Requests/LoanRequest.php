@@ -26,7 +26,7 @@ class LoanRequest extends FormRequest
     public function rules()
     {
         return [
-            'status' => 'required|in:PENDING,APPROVED,PAID',
+            'status' => 'required|in:PENDING,APPROVED,PAID,REJECTED',
             'loan_id' => 'required|numeric',
         ];
     }

@@ -27,4 +27,5 @@ Route::group(['prefix' => 'loan', 'middleware' => 'auth:sanctum'], function() {
     Route::post('/', [LoanController::class, 'store']);
     Route::post('update-status', [LoanController::class, 'updateStatus'])->middleware('admin');
     Route::post('payment', [LoanController::class, 'payment']);
+    Route::post('/{id}', [LoanController::class, 'show']);
 });

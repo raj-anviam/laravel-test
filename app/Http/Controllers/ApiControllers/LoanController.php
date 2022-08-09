@@ -10,6 +10,7 @@ use App\Http\Requests\LoanRequest;
 use App\Http\Requests\PaymentRequest;
 use Auth;
 use DB;
+use Exception;
 use Carbon\Carbon;
 use App\Models\Loan;
 use App\Models\Installment;
@@ -17,6 +18,20 @@ use App\Models\Installment;
 class LoanController extends Controller
 {
     use ApiResponseTrait;
+    
+    public function show($loanId) {
+        try {
+            $data = Loan::with('installments')->findOrFail($loanId);
+
+            if($data->user_id != Auth::user()->id)
+                throw new Exception("You can only view your loan applications");
+
+            return $this->successResponse($data);
+        }
+        catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+    }
     
     public function store(LoanApplicationRequest $request) {
         try {
@@ -48,7 +63,13 @@ class LoanController extends Controller
 
             Loan::whereId($loan->id)->update(['status' => $request->status]);
 
-            if($request->status == 'APPROVED') {
+            // if admin rejects the application
+            if($request->status == 'REJECTED') {
+                $loan->status = $request->status;
+                $loan->save();
+            }
+
+            else if($request->status == 'APPROVED') {
                 $installmentAmount = $loan->amount / $loan->loan_term;
                 
                 $dueDate = Carbon::today();
@@ -72,6 +93,9 @@ class LoanController extends Controller
                 DB::beginTransaction();
                 Installment::insert($data);
                 DB::commit();
+            }
+            else {
+                return $this->errorResponse("please check status");
             }
 
             return $this->successResponse(['installments' => $data], 200, true, "Loan Request has been $request->status");

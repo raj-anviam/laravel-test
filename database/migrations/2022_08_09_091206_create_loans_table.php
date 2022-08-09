@@ -18,7 +18,7 @@ class CreateLoansTable extends Migration
             $table->double('amount');
             $table->integer('loan_term');
             $table->foreignId('user_id')->constrained();
-            $table->enum('status', ['PENDING', 'APPROVED', 'PAID'])->constrained();
+            $table->enum('status', ['PENDING', 'APPROVED', 'PAID', 'REJECTED'])->constrained();
             $table->timestamps();
         });
     }
