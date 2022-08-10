@@ -1,0 +1,221 @@
+swagger: '2.0'
+info:
+  description: Laravel Test API's
+  version: 1.0.0
+  title: Laravel Test API's
+basePath: /api/
+# tags:
+#   - name: User
+
+paths:
+  /register:
+    post:
+      tags:
+        - Register
+      summary: User Register
+      description: 'Register User with this API'
+      operationId: register
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: json
+          type: integer
+          required: true
+          schema:
+            $ref: '#/definitions/Register'
+
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Bad request
+  /login:
+    post:
+      tags:
+        - Login
+      summary: User Login
+      description: 'Login User with this API'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: email
+          type: string
+          required: true
+          schema:
+            $ref: '#/definitions/Login'
+
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Bad request
+
+  /loan:
+    post:
+      tags:
+        - Loan Request
+      summary: Create Loan Request
+      description: 'Create Loan Request with this API'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: email
+          type: string
+          required: true
+          schema:
+            $ref: '#/definitions/LoanRequest'
+
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Bad request
+
+  /loan/{id}:
+    get:
+      tags:
+        - Loan Application
+      summary: Create Loan Request
+      description: 'Create Loan Request with this API'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Bad request
+
+  /loan/update-status:
+    post:
+      tags:
+        - Loan Request Approve / Reject
+      summary: Loan Request Approve / Reject
+      description: 'Loan Request Approve / Reject with this API'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: email
+          type: string
+          required: true
+          schema:
+            $ref: '#/definitions/LoanUpdateStatus'
+
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Bad request
+
+  /loan/payment:
+    post:
+      tags:
+        - Loan Installment Payment
+      summary: Loan Installment Payment
+      description: 'Loan Installment Payment with this API'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: email
+          type: string
+          required: true
+          schema:
+            $ref: '#/definitions/Payment'
+
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Bad request
+  
+definitions:
+  Register:           
+    type: object
+    required:
+      - name
+      - email
+      - password
+      - password_confirmation
+
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      password_confirmation:
+        type: string
+  Login:           
+    type: object
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+  LoanRequest:           
+    type: object
+    required:
+      - amount
+      - loan_term
+    properties:
+      amount:
+        type: integer
+      loan_term:
+        type: integer
+  LoanUpdateStatus:           
+    type: object
+    required:
+      - status
+      - loan_id
+    properties:
+      status:
+        type: string
+        enum: [APPROVED,PENDING,PAID,REJECTED]
+      loan_id:
+        type: integer
+  Payment:           
+    type: object
+    required:
+      - amount
+      - loan_id
+    properties:
+      amount:
+        type: integer
+      loan_id:
+        type: integer
+        
+
+security:
+        - api_key: []
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: Authorization
+    in: header
