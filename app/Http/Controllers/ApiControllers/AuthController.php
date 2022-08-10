@@ -60,6 +60,7 @@ class AuthController extends Controller
                 'token' => Auth::user()->createToken('tokens')->plainTextToken,
                 'name' => Auth::user()->name,
                 'email' => Auth::user()->email,
+                'id' => Auth::user()->id,
             ];
             
             return $this->successResponse($data);

@@ -41,9 +41,9 @@ class LoanController extends Controller
             $data['status'] = 'PENDING';
 
             DB::beginTransaction();
-            Loan::create($data);
+            $loan = Loan::create($data);
             DB::commit();
-            return $this->successResponse([], 201, true, 'Loan Request has been created');
+            return $this->successResponse(['loan_id' => $loan->id], 201, true, 'Loan Request has been created');
         }
         catch (Exception $e) {
             DB::rollback();
@@ -114,7 +114,7 @@ class LoanController extends Controller
             
             // check pending installments
             if(!$this->hasPendingInstallments($loan)) {
-                return $this->errorResponse("You have paid back the loan");
+                return $this->successResponse("You have paid back the loan");
             }
             
             $installment = $loan->installments()->whereStatus('PENDING')->where('due_date', '>=', Carbon::today())->first();
