@@ -17,3 +17,14 @@ php artisan db:seed
 ```
 
 > Note: The seeders are meant to be run only once for the sake of test
+
+#### Swagger
+> visit /docs for swagger documentation
+
+#### Postman
+> Postman API collection file 'api.postman_collection' is available at root directory
+
+#### Testing
+```
+php artisan test
+```
